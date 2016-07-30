@@ -21,7 +21,8 @@ import Data.List (List(..))
 -- | expression is used in a strict position it is re-evaluated or *forced*.
 -- | Think about deferring in terms of implicit wrapping of `x :: t` to
 -- | `(\_ -> x :: t) :: Defer => t` and the use in strict position as
--- | application of unit: `(x' :: Defer => t) unit :: t`.
+-- | application of unit: `(x' :: Defer => t) unit :: t`.  In practice it is
+-- | actually the type class dictionary being passed in.
 class Defer
 instance force :: Defer
 
@@ -30,7 +31,7 @@ class Semigroup m where
   strictAppend :: m -> m -> m
   deferAppend :: (Defer => m) -> (Defer => m) -> m
 
--- | Example implementation of `First` which can ignore the rhs if the left is
+-- | Example semigroup for `First` which can ignore the rhs if the left is
 -- | a `Just`.  In the `deferAppend` implementation `r` will never be forced
 -- | if we only use `l`.
 instance semigroupFirst :: Semigroup (First t) where
@@ -38,7 +39,7 @@ instance semigroupFirst :: Semigroup (First t) where
     l'@(First (Just _)) -> l'
     _ -> r
 
-  -- careful not to pattern match on `r` so it doesn't get forced to early
+  -- careful not to pattern match on `r` so it doesn't get forced too early
   deferAppend l r = case l of
     l'@(First (Just _)) -> l'
     _ -> r
