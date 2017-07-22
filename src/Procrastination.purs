@@ -13,8 +13,9 @@ module Procrastination
   ) where
 
 import Data.Maybe (Maybe(..))
-import Data.Maybe.First (First(..), runFirst)
+import Data.Maybe.First (First(..))
 import Data.List (List(..))
+import Data.Newtype (unwrap)
 
 -- | The Defer class should be used to mark arguments whose evaluation should
 -- | be deferred until the result is needed.  Every time a deferred
@@ -40,9 +41,13 @@ instance semigroupFirst :: Semigroup (First t) where
     _ -> r
 
   -- careful not to pattern match on `r` so it doesn't get forced too early
-  deferAppend l r = case l of
-    l'@(First (Just _)) -> l'
-    _ -> r
+  deferAppend l@(First (Just _)) r = l
+  deferAppend _ r = r
+
+--  -- careful not to pattern match on `r` so it doesn't get forced too early
+--  deferAppend l r = case l of
+--    l'@(First (Just _)) -> l'
+--    _ -> r
 
 class Semigroup m <= Monoid m where
   mempty :: m
@@ -67,5 +72,5 @@ instance foldableDeferList :: Foldable DeferList where
 
 -- An example program using `First`
 findMap :: forall f a b. Foldable f => (a -> Maybe b) -> f a -> Maybe b
-findMap f xs = runFirst (foldMap (\x -> First (f x)) xs)
+findMap f xs = unwrap (foldMap (\x -> First (f x)) xs)
 

@@ -1,11 +1,15 @@
 module Main where
 
-import Prelude (Unit, bind, (-))
+import Prelude (Unit, unit, discard, (-))
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
 import Data.Maybe (Maybe(..))
 import Data.List (range)
-import Procrastination (StrictList(..), DeferList(..), findMap)
+import Procrastination (StrictList(..), DeferList(..), findMap, class Defer)
+
+bananas :: (Defer => Maybe Unit) -> (Defer => Maybe Unit) -> Unit
+bananas Nothing r = unit
+bananas l r = unit
 
 main :: forall e. Eff (console :: CONSOLE | e) Unit
 main = do
